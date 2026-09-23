@@ -2,6 +2,8 @@ import os
 import sqlite3
 import logging
 from datetime import datetime
+import threading
+from flask import Flask
 
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -244,8 +246,20 @@ def chat(message):
         answer = "Le Gardien est momentanément perturbé. Réessaie plus tard."
     bot.reply_to(message, answer)
 
+app = Flask(__name__)
+
+@app.route('/')
+def health_check():
+    return "Gardien en ligne", 200
+
+def run_bot():
+    bot.infinity_polling()
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     init_db()
     print("Gardien en ligne.")
-    bot.infinity_polling()
+    bot_thread = threading.Thread(target=run_bot)
+    bot_thread.start()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

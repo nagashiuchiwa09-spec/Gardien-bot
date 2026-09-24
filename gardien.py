@@ -17,7 +17,6 @@ GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")
 BOT_USERNAME = os.getenv("BOT_USERNAME", "").strip()
 
 bot = telebot.TeleBot(BOT_TOKEN)
-groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 app = Flask(__name__)
 
@@ -81,8 +80,8 @@ def handle_all_messages(message):
         is_mentioned = (f"@{BOT_USERNAME}".lower() in message.text.lower()) if BOT_USERNAME else False
 
     if is_private or is_reply_to_bot or is_mentioned:
-        if not groq_client:
-            bot.reply_to(message, "L'IA n'est pas configurée (clé Groq manquante).")
+        if not GROQ_API_KEY:
+            bot.reply_to(message, "L'IA n'est pas configurée (clé GROQ_API_KEY manquante sur Render).")
             return
 
         clean_text = message.text
@@ -91,7 +90,9 @@ def handle_all_messages(message):
 
         try:
             bot.send_chat_action(message.chat.id, 'typing')
-            response = groq_client.chat.completions.create(
+            
+            client = Groq(api_key=GROQ_API_KEY)
+            response = client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": clean_text}
@@ -104,7 +105,7 @@ def handle_all_messages(message):
             bot.reply_to(message, reply)
         except Exception as e:
             logging.error(f"Erreur Groq: {e}")
-            bot.reply_to(message, "Une erreur s'est produite lors du traitement de la réponse.")
+            bot.reply_to(message, f"Erreur de réponse IA : {str(e)}")
 
 @app.route('/')
 def home():

@@ -93,28 +93,15 @@ def handle_all_messages(message):
             
             client = Groq(api_key=GROQ_API_KEY)
             
-            # Essai principal avec llama-3.3-70b-versatile
-            try:
-                response = client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": clean_text}
-                    ],
-                    model="llama-3.3-70b-versatile",
-                    temperature=0.7,
-                    max_tokens=800
-                )
-            except Exception:
-                # Modèle de secours
-                response = client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": clean_text}
-                    ],
-                    model="llama3-8b-8192",
-                    temperature=0.7,
-                    max_tokens=800
-                )
+            response = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": clean_text}
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.7,
+                max_tokens=800
+            )
 
             reply = response.choices[0].message.content
             bot.reply_to(message, reply)

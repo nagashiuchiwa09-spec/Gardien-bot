@@ -98,7 +98,7 @@ def handle_all_messages(message):
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": clean_text}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="openai/gpt-oss-20b",
                 temperature=0.7,
                 max_tokens=800
             )
